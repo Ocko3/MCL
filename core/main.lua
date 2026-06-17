@@ -50,7 +50,13 @@ local allItemIDs  -- populated once on ADDON_LOADED
 local function PreWarmAllItems()
     allItemIDs = CollectAllItemIDs()
     for itemID in pairs(allItemIDs) do
-        C_Item.RequestLoadItemDataByID(itemID)
+        -- MoP Classic compatibility: use GetItemInfo for item caching
+        if C_Item and C_Item.RequestLoadItemDataByID then
+            C_Item.RequestLoadItemDataByID(itemID)
+        else
+            -- Fallback for older APIs
+            GetItemInfo(itemID)
+        end
     end
 end
 
@@ -69,7 +75,11 @@ local function ResolveItemCache()
             else
                 pending = pending + 1
                 -- Re-request to nudge the client
-                C_Item.RequestLoadItemDataByID(itemID)
+                if C_Item and C_Item.RequestLoadItemDataByID then
+                    C_Item.RequestLoadItemDataByID(itemID)
+                else
+                    GetItemInfo(itemID)
+                end
             end
         end
     end
@@ -221,7 +231,11 @@ local function InitMounts()
                                 -- Check session cache first, then API
                                 local mountID = MCLcore.itemToMountCache[mountEntry]
                                 if not mountID then
-                                    C_Item.RequestLoadItemDataByID(mountEntry)
+                                    if C_Item and C_Item.RequestLoadItemDataByID then
+                                        C_Item.RequestLoadItemDataByID(mountEntry)
+                                    else
+                                        GetItemInfo(mountEntry)
+                                    end
                                     mountID = C_MountJournal.GetMountFromItem(mountEntry)
                                     if mountID then
                                         MCLcore.itemToMountCache[mountEntry] = mountID
@@ -514,36 +528,50 @@ local f = CreateFrame("Frame")
 local login = true
 
 -- * -------------------------------------------------
--- * Loads addon once Blizzard_Collections has loaded in.
+-- * Loads addon once mount journal is available
 -- * -------------------------------------------------
 
 local function EnsureCollectionsLoaded()
-    if not C_AddOns.IsAddOnLoaded("Blizzard_Collections") then
-        local ok = pcall(C_AddOns.LoadAddOn, "Blizzard_Collections")
-        if not ok then
-            -- Retry shortly if load failed (can happen very early on some clients)
-            C_Timer.After(2, EnsureCollectionsLoaded)
-            return false
+    -- MoP Classic: Use different API calls
+    if C_AddOns then
+        -- Retail/modern API
+        if not C_AddOns.IsAddOnLoaded("Blizzard_Collections") then
+            local ok = pcall(C_AddOns.LoadAddOn, "Blizzard_Collections")
+            if not ok then
+                C_Timer.After(2, EnsureCollectionsLoaded)
+                return false
+            end
+        end
+    else
+        -- Fallback for older versions
+        if not IsAddOnLoaded("Blizzard_Collections") then
+            local ok = pcall(LoadAddOn, "Blizzard_Collections")
+            if not ok then
+                C_Timer.After(2, EnsureCollectionsLoaded)
+                return false
+            end
         end
     end
     return true
 end
 
 local function ClearMountFilters()
-    if C_MountJournal.SetCollectedFilterSetting then
-        -- Show both collected and not collected
-        pcall(C_MountJournal.SetCollectedFilterSetting, LE_MOUNT_JOURNAL_FILTER_COLLECTED, true)
-        pcall(C_MountJournal.SetCollectedFilterSetting, LE_MOUNT_JOURNAL_FILTER_NOT_COLLECTED, true)
-    end
-    if C_MountJournal.SetSearch then
-        pcall(C_MountJournal.SetSearch, "")
-    end
-    if C_MountJournal.SetAllFactionFilters then
-        pcall(C_MountJournal.SetAllFactionFilters, true)
-    end
-    if C_MountJournal.SetAllTypeFilters then
-        pcall(C_MountJournal.SetAllTypeFilters, true)
-    end
+    -- Safely clear mount filters if functions exist
+    pcall(function()
+        if C_MountJournal.SetCollectedFilterSetting then
+            C_MountJournal.SetCollectedFilterSetting(LE_MOUNT_JOURNAL_FILTER_COLLECTED, true)
+            C_MountJournal.SetCollectedFilterSetting(LE_MOUNT_JOURNAL_FILTER_NOT_COLLECTED, true)
+        end
+        if C_MountJournal.SetSearch then
+            C_MountJournal.SetSearch("")
+        end
+        if C_MountJournal.SetAllFactionFilters then
+            C_MountJournal.SetAllFactionFilters(true)
+        end
+        if C_MountJournal.SetAllTypeFilters then
+            C_MountJournal.SetAllTypeFilters(true)
+        end
+    end)
 end
 
 local function onevent(self, event, arg1, ...)
@@ -552,7 +580,7 @@ local function onevent(self, event, arg1, ...)
         f:UnregisterEvent("ADDON_LOADED")
         f:UnregisterEvent("PLAYER_LOGIN")
         
-        -- Force load Blizzard_Collections early (Option A)
+        -- Force load Blizzard_Collections early
         EnsureCollectionsLoaded()
         ClearMountFilters()
         
@@ -611,7 +639,11 @@ local function RunDeferredResolver()
                         MCLcore.itemToMountCache[itemID] = mountID
                     else
                         -- Re-request to nudge the client
-                        C_Item.RequestLoadItemDataByID(itemID)
+                        if C_Item and C_Item.RequestLoadItemDataByID then
+                            C_Item.RequestLoadItemDataByID(itemID)
+                        else
+                            GetItemInfo(itemID)
+                        end
                     end
                 end
                 if mountID then
