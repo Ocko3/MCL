@@ -1,6 +1,39 @@
 local _, MCLcore = ...;
 local L = MCLcore.L or {}
 
+-- ===================================================================
+-- MoP Classic Compatibility Check
+-- ===================================================================
+local function IsMoPClassic()
+    local buildVersion = select(4, GetBuildInfo())
+    -- MoP Classic has build info that doesn't match Retail
+    -- For safety, we check if modern Retail features are available
+
+    -- TODO this can be handled differently
+    return not C_CurrencyInfo or not UiMapPoint
+end
+
+MCLcore.IsMoPClassic = IsMoPClassic()
+
+-- ===================================================================
+-- Feature Detection & Safe Loading
+-- ===================================================================
+
+-- Check if the guide system is available
+MCLcore.GuideSystemAvailable = false
+if not MCLcore.IsMoPClassic then
+    -- Only enable guide features on Retail
+    MCLcore.GuideSystemAvailable = true
+else
+    -- TODO make it work!!!!!
+    print("|cFF1FB7EBMCL|r: Running on MoP Classic. Some features (Guide/Map system) have been disabled due to API incompatibility.")
+end
+
+-- Initialize core modules that are always safe
+if MCLcore.Main then
+    MCLcore.Main:Init()
+end
+
 -- Initialize search functionality when the addon loads
 local function InitializeSearch()
     if not MCLcore.Search then
