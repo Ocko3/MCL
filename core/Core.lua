@@ -195,7 +195,7 @@ local function InitializeSearch()
 
             -- Create the dropdown frame once, reuse it
             if not MCLcore.searchDropdown then
-                local dd = CreateFrame("Frame", "MCLSearchDropdown", UIParent, "BackdropTemplate")
+                local dd = CreateFrame("Frame", "MCLSearchDropdown", UIParent)
                 dd:SetFrameStrata("TOOLTIP")  -- Above everything
                 dd:SetFrameLevel(200)
                 dd:SetClampedToScreen(true)
@@ -277,7 +277,7 @@ local function InitializeSearch()
             for i, result in ipairs(self.searchResults) do
                 if i > maxResults then break end
 
-                local row = CreateFrame("Button", nil, dd.scrollChild, "BackdropTemplate")
+                local row = CreateFrame("Button", nil, dd.scrollChild)
                 row:SetSize(ddWidth - 32, rowHeight)
                 row:SetPoint("TOPLEFT", dd.scrollChild, "TOPLEFT", 2, yOffset)
 
@@ -292,7 +292,9 @@ local function InitializeSearch()
                     if type(result.mountId) == "number" then
                         GameTooltip:SetItemByID(result.mountId)
                     else
-                        GameTooltip:SetMountBySpellID(result.spellID)
+                        if result.spellID then
+                            GameTooltip:SetSpellByID(result.spellID)
+                        end
                     end
                     GameTooltip:Show()
                 end)

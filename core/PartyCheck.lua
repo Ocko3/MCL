@@ -1,3 +1,15 @@
+-- MoP compat: C_ChatInfo doesn't exist, these are globals
+if not C_ChatInfo then
+    C_ChatInfo = {
+        RegisterAddonMessagePrefix = function(prefix)
+            return RegisterAddonMessagePrefix(prefix)
+        end,
+        SendAddonMessage = function(prefix, msg, channel, target)
+            return SendAddonMessage(prefix, msg, channel, target)
+        end,
+    }
+end
+
 -- * ------------------------------------------------------
 -- * MCL Party Check
 -- * Scans party/raid for other MCL users and reports

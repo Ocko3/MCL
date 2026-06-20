@@ -317,7 +317,7 @@ local loadingDots = 0
 
 local function CreateLoadingFrame()
     local LL = MCLcore.L or L or {}
-    local f = CreateFrame("Frame", "MCL_LoadingFrame", UIParent, "BackdropTemplate")
+    local f = CreateFrame("Frame", "MCL_LoadingFrame", UIParent)
     f:SetSize(340, 90)
     f:SetPoint("CENTER", UIParent, "CENTER", 0, 120)
     f:SetFrameStrata("DIALOG")

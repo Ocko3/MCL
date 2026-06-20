@@ -245,7 +245,7 @@ local function ThrottledMountCreation(mountList, categoryFrame, config, callback
                         
                         -- Create backdrop frame first
                         local backdropSize = config.mountSize + 2
-                        local backdropFrame = CreateFrame("Frame", nil, categoryFrame, "BackdropTemplate")
+                        local backdropFrame = CreateFrame("Frame", nil, categoryFrame)
                         backdropFrame:SetSize(backdropSize, backdropSize)
                         backdropFrame:SetPoint("TOPLEFT", categoryFrame, "TOPLEFT", iconX - 1, iconY + 1)
                         backdropFrame.mountID = mountId
@@ -438,7 +438,7 @@ function MCL_frames:CreateMainFrame()
     local HEADER_HEIGHT = 30
     
     -- Header background bar
-    MCL_mainFrame.headerBar = CreateFrame("Frame", nil, MCL_mainFrame, "BackdropTemplate")
+    MCL_mainFrame.headerBar = CreateFrame("Frame", nil, MCL_mainFrame)
     MCL_mainFrame.headerBar:SetPoint("TOPLEFT", MCL_mainFrame, "TOPLEFT", 0, 0)
     MCL_mainFrame.headerBar:SetPoint("TOPRIGHT", MCL_mainFrame, "TOPRIGHT", 0, 0)
     MCL_mainFrame.headerBar:SetHeight(HEADER_HEIGHT)
@@ -472,7 +472,7 @@ function MCL_frames:CreateMainFrame()
     local TBAR_BTN_PADDING = 5
     
     local function CreateHeaderButton(parent, width, labelText, tooltipTitle, tooltipBody, onClick)
-        local btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
+        local btn = CreateFrame("Button", nil, parent)
         btn:SetSize(width, TBAR_BTN_HEIGHT)
         btn:SetBackdrop({
             bgFile = "Interface\\Buttons\\WHITE8x8",
@@ -975,7 +975,7 @@ function MCL_frames:SetTabs()
 
     -- 1. Overview tab (always first)
     if overviewSection then
-        local tab = CreateFrame("Button", nil, tabFrame, "BackdropTemplate")
+        local tab = CreateFrame("Button", nil, tabFrame)
         tab:SetSize(nav_width + 8, 32)  -- Use nav width for sidebar tabs
         tab:SetPoint("TOPLEFT", tabFrame, "TOPLEFT", 1, navYOffset)
         StyleNavButton(tab, false)  -- Use our styling function
@@ -1027,7 +1027,7 @@ function MCL_frames:SetTabs()
     for i, v in ipairs(expansionSections) do
         local col = ((i-1) % gridCols)
         local row = math.floor((i-1) / gridCols)
-        local btn = CreateFrame("Button", nil, tabFrame, "BackdropTemplate")
+        local btn = CreateFrame("Button", nil, tabFrame)
         btn:SetSize(iconSize, iconSize)
         btn:SetPoint("TOPLEFT", tabFrame, "TOPLEFT", gridStartX + col * (iconSize + iconPad), gridStartY - row * (iconSize + iconPad))
         StyleNavButton(btn, true)  -- Use our styling function for expansion icons
@@ -1095,7 +1095,7 @@ function MCL_frames:SetTabs()
     navYOffset = gridStartY - math.ceil(#expansionSections / gridCols) * (iconSize + iconPad) - 10
     -- 3. Remaining full-width tabs
     for _, v in ipairs(otherSections) do
-        local tab = CreateFrame("Button", nil, tabFrame, "BackdropTemplate")
+        local tab = CreateFrame("Button", nil, tabFrame)
         tab:SetSize(nav_width + 8, 32)  -- Use nav width for sidebar tabs
         tab:SetPoint("TOPLEFT", tabFrame, "TOPLEFT", 1, navYOffset)
         StyleNavButton(tab, false)  -- Use our styling function
@@ -1152,7 +1152,7 @@ function MCL_frames:SetTabs()
     end
     -- 4. Pinned tab (always last)
     if pinnedSection then
-        local tab = CreateFrame("Button", nil, tabFrame, "BackdropTemplate")
+        local tab = CreateFrame("Button", nil, tabFrame)
         tab:SetSize(nav_width + 8, 32)  -- Use nav width for sidebar tabs
         tab:SetPoint("TOPLEFT", tabFrame, "TOPLEFT", 1, navYOffset)
         StyleNavButton(tab, false)  -- Use our styling function
@@ -1225,7 +1225,7 @@ function MCL_frames:SetTabs()
 
     -- 5. Settings tab (always last)
     do
-        local tab = CreateFrame("Button", nil, tabFrame, "BackdropTemplate")
+        local tab = CreateFrame("Button", nil, tabFrame)
         tab:SetSize(nav_width + 8, 32)  -- Use nav width for sidebar tabs
         tab:SetPoint("TOPLEFT", tabFrame, "TOPLEFT", 1, navYOffset)
         StyleNavButton(tab, false)  -- Use our styling function
@@ -1254,7 +1254,7 @@ function MCL_frames:SetTabs()
 
     -- 8. About tab
     do
-        local tab = CreateFrame("Button", nil, tabFrame, "BackdropTemplate")
+        local tab = CreateFrame("Button", nil, tabFrame)
         local aboutText = L["About"]
         tab:SetSize(nav_width + 8, 32)
         tab:SetPoint("TOPLEFT", tabFrame, "TOPLEFT", 1, navYOffset)
@@ -1292,7 +1292,7 @@ end
 
 
 function MCL_frames:createNavFrame(relativeFrame, title)
-    local frame = CreateFrame("Frame", "Nav", relativeFrame, "BackdropTemplate");
+    local frame = CreateFrame("Frame", "Nav", relativeFrame);
     frame:SetWidth(nav_width + 10)
     
     -- Set height to match current main frame height
@@ -1314,7 +1314,7 @@ function MCL_frames:createNavFrame(relativeFrame, title)
     end
     
     -- Header bar (matches main frame header exactly)
-    frame.headerBar = CreateFrame("Frame", nil, frame, "BackdropTemplate")
+    frame.headerBar = CreateFrame("Frame", nil, frame)
     frame.headerBar:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
     frame.headerBar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 1, 0)  -- extend 1px right to cover main frame left border
     frame.headerBar:SetHeight(30)
@@ -1337,7 +1337,7 @@ function MCL_frames:createNavFrame(relativeFrame, title)
     frame.titleAccent:SetColorTexture(0.2, 0.6, 0.9, 0.6)
     
     -- Create search bar (flush with nav frame inner border)
-    frame.searchContainer = CreateFrame("Frame", nil, frame, "BackdropTemplate")
+    frame.searchContainer = CreateFrame("Frame", nil, frame)
     frame.searchContainer:SetHeight(26)
     frame.searchContainer:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -37)
     frame.searchContainer:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -1, -37)
@@ -1462,7 +1462,7 @@ end
 -- IMPORTANT: Ensure SetTabs is called before any code that uses MCLcore.overview
 
 function MCL_frames:progressBar(relativeFrame, top)
-    MyStatusBar = CreateFrame("StatusBar", nil, relativeFrame, "BackdropTemplate")
+    MyStatusBar = CreateFrame("StatusBar", nil, relativeFrame)
     
     -- Safe texture handling with fallback (use Widgets helper when available)
     local textureToUse
@@ -1512,7 +1512,7 @@ function MCL_frames:createContentFrame(relativeFrame, title, sectionIcon)
     local currentWidth, _ = MCL_frames:GetCurrentFrameDimensions()
     local availableWidth = currentWidth - 40  -- Symmetric padding within scroll viewport
     
-    local frame = CreateFrame("Frame", nil, relativeFrame, "BackdropTemplate")
+    local frame = CreateFrame("Frame", nil, relativeFrame)
     frame:SetWidth(availableWidth)  -- Use current available width
     frame:SetHeight(50)  -- Increased height to accommodate title padding
     frame:SetPoint("TOPLEFT", relativeFrame, "TOPLEFT", 10, 0)  -- Centered in scroll viewport
@@ -1552,7 +1552,7 @@ function MCL_frames:createContentFrame(relativeFrame, title, sectionIcon)
 
     -- Add pin instructions for all sections except Overview
     if title == "Pinned" then
-        local instructionsFrame = CreateFrame("Frame", nil, frame, "BackdropTemplate")
+        local instructionsFrame = CreateFrame("Frame", nil, frame)
         instructionsFrame:SetSize(availableWidth - 30, 20)  -- Smaller height for compact display
         instructionsFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 10, -30)  -- Position below title
         instructionsFrame:SetBackdrop({
@@ -1594,7 +1594,7 @@ function MCL_frames:createContentFrame(relativeFrame, title, sectionIcon)
         sortLabel:SetText(L["Sort:"])
         sortLabel:SetTextColor(0.5, 0.55, 0.65, 1)
 
-        local sortBtn = CreateFrame("Button", nil, frame, "BackdropTemplate")
+        local sortBtn = CreateFrame("Button", nil, frame)
         sortBtn:SetSize(120, 20)
         sortBtn:SetPoint("RIGHT", sortLabel, "LEFT", -4, 0)
         sortBtn:SetBackdrop({
@@ -1647,7 +1647,7 @@ function MCL_frames:createContentFrame(relativeFrame, title, sectionIcon)
         end)
 
         -- Filter collected toggle button (to the left of the sort button)
-        local filterBtn = CreateFrame("Button", nil, frame, "BackdropTemplate")
+        local filterBtn = CreateFrame("Button", nil, frame)
         filterBtn:SetSize(130, 20)
         filterBtn:SetPoint("RIGHT", sortBtn, "LEFT", -12, 0)
         filterBtn:SetBackdrop({
@@ -1716,7 +1716,7 @@ function MCL_frames:createZoneDropsFrame(relativeFrame)
     local currentWidth, _ = MCL_frames:GetCurrentFrameDimensions()
     local availableWidth   = currentWidth - 40
 
-    local frame = CreateFrame("Frame", nil, relativeFrame, "BackdropTemplate")
+    local frame = CreateFrame("Frame", nil, relativeFrame)
     frame:SetWidth(availableWidth)
     frame:SetHeight(50)
     frame:SetPoint("TOPLEFT", relativeFrame, "TOPLEFT", 10, 0)
@@ -1849,7 +1849,7 @@ function MCL_frames:RefreshZoneDrops()
                 end
 
                 if show then
-                    local row = CreateFrame("Button", nil, container, "BackdropTemplate")
+                    local row = CreateFrame("Button", nil, container)
                     row:SetSize(rowWidth, 44)
                     row:SetPoint("TOPLEFT", container, "TOPLEFT", 10, yOffset)
                     row:SetBackdrop({
@@ -2031,7 +2031,7 @@ function MCL_frames:createRepFilterFrame(relativeFrame)
     local currentWidth, _ = MCL_frames:GetCurrentFrameDimensions()
     local availableWidth   = currentWidth - 40
 
-    local frame = CreateFrame("Frame", nil, relativeFrame, "BackdropTemplate")
+    local frame = CreateFrame("Frame", nil, relativeFrame)
     frame:SetWidth(availableWidth)
     frame:SetHeight(50)
     frame:SetPoint("TOPLEFT", relativeFrame, "TOPLEFT", 10, 0)
@@ -2214,7 +2214,7 @@ function MCL_frames:RefreshRepFilter()
                     end
                 end
             elseif cost.type == "item" then
-                local count = C_Item and C_Item.GetItemCount and C_Item.GetItemCount(cost.id, true) or GetItemCount(cost.id, true) or 0
+                local count = C_Item and C_Item.GetItemCount and GetItemCount(cost.id, true) or GetItemCount(cost.id, true) or 0
                 if count < (cost.amount or 0) then return false end
             end
         end
@@ -2225,7 +2225,7 @@ function MCL_frames:RefreshRepFilter()
     local mounts = {}
     local playerFaction = UnitFactionGroup("player")
     for spellId, repInfo in pairs(MCL_GUIDE_REP_DATA) do
-        local mountID = C_MountJournal.GetMountFromSpell(spellId)
+        local mountID = C_MountJournal.GetMountFromSpell and C_MountJournal.GetMountFromSpell(spellId)
         if mountID and mountID > 0 then
             local mountName, mountSpellID, icon, _, _, _, _, _, isFactionSpecific, faction, _, isCollected = C_MountJournal.GetMountInfoByID(mountID)
             if mountName then
@@ -2301,7 +2301,7 @@ function MCL_frames:RefreshRepFilter()
             end
 
             -- Mount row
-            local row = CreateFrame("Button", nil, container, "BackdropTemplate")
+            local row = CreateFrame("Button", nil, container)
             row:SetSize(rowWidth, 44)
             row:SetPoint("TOPLEFT", container, "TOPLEFT", 10, yOffset)
             row:SetBackdrop({
@@ -2350,8 +2350,8 @@ function MCL_frames:RefreshRepFilter()
                         local have = info and info.quantity or 0
                         table.insert(costParts, string.format("%d/%d %s", have, cost.amount, cname))
                     elseif cost.type == "item" then
-                        local iname = C_Item and C_Item.GetItemNameByID and C_Item.GetItemNameByID(cost.id) or (L["Item"] .. " " .. cost.id)
-                        local have = C_Item and C_Item.GetItemCount and C_Item.GetItemCount(cost.id, true) or GetItemCount(cost.id, true) or 0
+                        local iname = C_Item and C_Item.GetItemNameByID and GetItemInfo(cost.id) or (L["Item"] .. " " .. cost.id)
+                        local have = C_Item and C_Item.GetItemCount and GetItemCount(cost.id, true) or GetItemCount(cost.id, true) or 0
                         table.insert(costParts, string.format("%d/%d %s", have, cost.amount, iname))
                     end
                 end
@@ -2440,7 +2440,7 @@ function MCL_frames:createAboutFrame(relativeFrame)
     local currentWidth, _ = MCL_frames:GetCurrentFrameDimensions()
     local availableWidth   = currentWidth - 40
 
-    local frame = CreateFrame("Frame", nil, relativeFrame, "BackdropTemplate")
+    local frame = CreateFrame("Frame", nil, relativeFrame)
     frame:SetWidth(availableWidth)
     frame:SetHeight(700)
     frame:SetPoint("TOPLEFT", relativeFrame, "TOPLEFT", 10, 0)
@@ -2449,7 +2449,7 @@ function MCL_frames:createAboutFrame(relativeFrame)
 
     -- ── Helper: card container (same style as Settings cards) ──
     local function createCard(parent, title, yOffset, height)
-        local card = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+        local card = CreateFrame("Frame", nil, parent)
         card:SetWidth(availableWidth)
         card:SetHeight(height)
         card:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, yOffset)
@@ -2461,7 +2461,7 @@ function MCL_frames:createAboutFrame(relativeFrame)
         card:SetBackdropColor(0.06, 0.06, 0.09, 0.9)
         card:SetBackdropBorderColor(0.2, 0.2, 0.25, 0.6)
 
-        local header = CreateFrame("Frame", nil, card, "BackdropTemplate")
+        local header = CreateFrame("Frame", nil, card)
         header:SetPoint("TOPLEFT", card, "TOPLEFT", 1, -1)
         header:SetPoint("TOPRIGHT", card, "TOPRIGHT", -1, -1)
         header:SetHeight(26)
@@ -2659,7 +2659,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
     local currentWidth, _ = MCL_frames:GetCurrentFrameDimensions()
     local availableWidth = currentWidth - 40  -- Symmetric padding within scroll viewport
     
-    local frame = CreateFrame("Frame", nil, relativeFrame, "BackdropTemplate")
+    local frame = CreateFrame("Frame", nil, relativeFrame)
     frame:SetWidth(availableWidth)
     frame:SetHeight(750)
     frame:SetPoint("TOPLEFT", relativeFrame, "TOPLEFT", 10, 0)
@@ -2682,7 +2682,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
     -- HELPER: Create a settings card (grouped section)
     -- =====================================================
     local function createCard(parent, title, yOffset, height)
-        local card = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+        local card = CreateFrame("Frame", nil, parent)
         card:SetWidth(availableWidth)
         card:SetHeight(height)
         card:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, yOffset)
@@ -2695,7 +2695,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
         card:SetBackdropBorderColor(0.2, 0.2, 0.25, 0.6)
         
         -- Card header bar
-        local header = CreateFrame("Frame", nil, card, "BackdropTemplate")
+        local header = CreateFrame("Frame", nil, card)
         header:SetPoint("TOPLEFT", card, "TOPLEFT", 1, -1)
         header:SetPoint("TOPRIGHT", card, "TOPRIGHT", -1, -1)
         header:SetHeight(26)
@@ -2730,7 +2730,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
         bg:SetAllPoints()
         bg:SetColorTexture(0.08, 0.08, 0.1, 0.8)
         
-        local border = CreateFrame("Frame", nil, checkbox, "BackdropTemplate")
+        local border = CreateFrame("Frame", nil, checkbox)
         border:SetPoint("TOPLEFT", -1, 1)
         border:SetPoint("BOTTOMRIGHT", 1, -1)
         border:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
@@ -2796,7 +2796,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
         trackBg:SetPoint("RIGHT", slider, "RIGHT", -10, 0)
         
         -- Track border
-        local trackBorder = CreateFrame("Frame", nil, slider, "BackdropTemplate")
+        local trackBorder = CreateFrame("Frame", nil, slider)
         trackBorder:SetPoint("TOPLEFT", trackBg, "TOPLEFT", -1, 1)
         trackBorder:SetPoint("BOTTOMRIGHT", trackBg, "BOTTOMRIGHT", 1, -1)
         trackBorder:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
@@ -2821,7 +2821,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
         
         -- Input box
         if showInputBox then
-            local inputBox = CreateFrame("EditBox", nil, slider:GetParent(), "BackdropTemplate")
+            local inputBox = CreateFrame("EditBox", nil, slider:GetParent())
             inputBox:SetSize(50, 22)
             inputBox:SetPoint("LEFT", slider, "RIGHT", 10, 0)
             inputBox:SetBackdrop({
@@ -3045,7 +3045,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
         texLabel:SetTextColor(0.7, 0.78, 0.88, 1)
         
         -- Dropdown button
-        local ddBtn = CreateFrame("Button", nil, progressCard, "BackdropTemplate")
+        local ddBtn = CreateFrame("Button", nil, progressCard)
         ddBtn:SetSize(220, 30)
         ddBtn:SetPoint("TOPLEFT", progressCard, "TOPLEFT", 12, -54)
         ddBtn:SetBackdrop({
@@ -3084,7 +3084,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
         if curFile then ddPreview:SetTexture(curFile) end
         
         -- Dropdown list
-        local ddList = CreateFrame("Frame", nil, progressCard, "BackdropTemplate")
+        local ddList = CreateFrame("Frame", nil, progressCard)
         ddList:SetSize(220, 250)
         ddList:SetPoint("TOPLEFT", ddBtn, "BOTTOMLEFT", 0, -2)
         ddList:SetBackdrop({
@@ -3119,7 +3119,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
         
         local texBtns = {}
         for i, tName in ipairs(textures) do
-            local btn = CreateFrame("Button", nil, ddScrollChild, "BackdropTemplate")
+            local btn = CreateFrame("Button", nil, ddScrollChild)
             btn:SetSize(180, btnHeight - 2)
             btn:SetPoint("TOPLEFT", ddScrollChild, "TOPLEFT", 5, -(i-1) * btnHeight - 5)
             btn:SetBackdrop({ bgFile = "Interface\\Tooltips\\UI-Tooltip-Background" })
@@ -3182,7 +3182,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
     local function createColorSwatch(parent, xOff, yOff, colorKey, labelText)
         local c = MCL_SETTINGS.progressColors[colorKey]
         
-        local swatch = CreateFrame("Button", nil, parent, "BackdropTemplate")
+        local swatch = CreateFrame("Button", nil, parent)
         swatch:SetSize(22, 22)
         swatch:SetPoint("TOPLEFT", parent, "TOPLEFT", xOff, yOff)
         swatch:SetBackdrop({
@@ -3234,7 +3234,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
     local sw4 = createColorSwatch(progressCard, 306, swatchY, "complete", L["100%"])
     
     -- Reset Colors button
-    local resetColorsBtn = CreateFrame("Button", nil, progressCard, "BackdropTemplate")
+    local resetColorsBtn = CreateFrame("Button", nil, progressCard)
     resetColorsBtn:SetSize(100, 22)
     resetColorsBtn:SetPoint("TOPLEFT", progressCard, "TOPLEFT", 12, swatchY - 34)
     resetColorsBtn:SetBackdrop({
@@ -3265,7 +3265,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
     end)
     
     -- Reset Texture button (next to Reset Colors)
-    local resetTexBtn = CreateFrame("Button", nil, progressCard, "BackdropTemplate")
+    local resetTexBtn = CreateFrame("Button", nil, progressCard)
     resetTexBtn:SetSize(110, 22)
     resetTexBtn:SetPoint("LEFT", resetColorsBtn, "RIGHT", 8, 0)
     resetTexBtn:SetBackdrop({
@@ -3344,7 +3344,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
     styleSlider(opacitySlider, true, true)
     
     -- Reset Opacity button
-    local resetOpBtn = CreateFrame("Button", nil, opacityCard, "BackdropTemplate")
+    local resetOpBtn = CreateFrame("Button", nil, opacityCard)
     resetOpBtn:SetSize(110, 22)
     resetOpBtn:SetPoint("LEFT", opacitySlider, "RIGHT", 80, 0)
     resetOpBtn:SetBackdrop({
@@ -3443,7 +3443,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
     end
     
     -- Unlock / Lock Toast Position button
-    local unlockBtn = CreateFrame("Button", nil, toastCard, "BackdropTemplate")
+    local unlockBtn = CreateFrame("Button", nil, toastCard)
     unlockBtn:SetSize(160, 26)
     unlockBtn:SetPoint("TOPLEFT", toastCard, "TOPLEFT", 12, toastY)
     unlockBtn:SetBackdrop({
@@ -3489,7 +3489,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
     end)
     
     -- Reset Position button (next to unlock)
-    local resetPosBtn = CreateFrame("Button", nil, toastCard, "BackdropTemplate")
+    local resetPosBtn = CreateFrame("Button", nil, toastCard)
     resetPosBtn:SetSize(100, 26)
     resetPosBtn:SetPoint("LEFT", unlockBtn, "RIGHT", 8, 0)
     resetPosBtn:SetBackdrop({
@@ -3541,7 +3541,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
         lbl:SetText(labelText)
         lbl:SetTextColor(0.5, 0.55, 0.65, 1)
         
-        local input = CreateFrame("EditBox", nil, parent, "BackdropTemplate")
+        local input = CreateFrame("EditBox", nil, parent)
         input:SetSize(60, 22)
         input:SetPoint("LEFT", lbl, "RIGHT", 6, 0)
         input:SetBackdrop({
@@ -3577,7 +3577,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
     toastYInput:SetPoint("LEFT", yLbl, "RIGHT", 6, 0)
     
     -- Apply button
-    local applyBtn = CreateFrame("Button", nil, toastCard, "BackdropTemplate")
+    local applyBtn = CreateFrame("Button", nil, toastCard)
     applyBtn:SetSize(60, 22)
     applyBtn:SetPoint("LEFT", toastYInput, "RIGHT", 12, 0)
     applyBtn:SetBackdrop({
@@ -3745,7 +3745,7 @@ function MCL_frames:createSettingsFrame(relativeFrame)
     dangerAccent:SetPoint("TOPRIGHT", resetCard, "TOPRIGHT", -1, -27)
     dangerAccent:SetColorTexture(0.6, 0.15, 0.15, 0.5)
     
-    local resetBtn = CreateFrame("Button", nil, resetCard, "BackdropTemplate")
+    local resetBtn = CreateFrame("Button", nil, resetCard)
     resetBtn:SetSize(130, 26)
     resetBtn:SetPoint("TOPLEFT", resetCard, "TOPLEFT", 12, -32)
     resetBtn:SetBackdrop({
@@ -3841,7 +3841,7 @@ function MCL_frames:createOverviewCategory(set, relativeFrame)
 
     if not hideTotalBar then
         -- Container
-        local totalFrame = CreateFrame("Frame", nil, relativeFrame, "BackdropTemplate")
+        local totalFrame = CreateFrame("Frame", nil, relativeFrame)
         totalFrame:SetHeight(56)
         totalFrame:SetPoint("TOPLEFT", relativeFrame, "TOPLEFT", 10, -10)
         totalFrame:SetPoint("TOPRIGHT", relativeFrame, "TOPRIGHT", -10, -10)
@@ -3916,7 +3916,7 @@ function MCL_frames:createOverviewCategory(set, relativeFrame)
             local collectedMounts = (sectionStats and sectionStats.collected) or 0
             
             -- Create section frame with subtle backdrop
-            local sectionFrame = CreateFrame("Frame", nil, relativeFrame, "BackdropTemplate")
+            local sectionFrame = CreateFrame("Frame", nil, relativeFrame)
             sectionFrame:SetWidth(columnWidth)
             sectionFrame:SetHeight(52)
             sectionFrame:SetPoint("TOPLEFT", relativeFrame, "TOPLEFT", xPos, yPos)
@@ -4300,7 +4300,7 @@ for _, categoryName in ipairs(sortedCategoryNames) do
         local categoryHeight = baseHeight + (numRows * rowHeight) + 10  -- Reduced bottom padding
         
         -- Create category frame with dynamic height
-        local categoryFrame = CreateFrame("Frame", nil, relativeFrame, "BackdropTemplate")
+        local categoryFrame = CreateFrame("Frame", nil, relativeFrame)
 
         categoryFrame:SetWidth(columnWidth)
         categoryFrame:SetHeight(categoryHeight)  -- Dynamic height
@@ -4327,7 +4327,7 @@ for _, categoryName in ipairs(sortedCategoryNames) do
         categoryFrame.columnIndex = categoryIndex
 
         -- House-style +/− toggle button
-        categoryFrame.toggleBtn = CreateFrame("Frame", nil, categoryFrame, "BackdropTemplate")
+        categoryFrame.toggleBtn = CreateFrame("Frame", nil, categoryFrame)
         categoryFrame.toggleBtn:SetSize(16, 16)
         categoryFrame.toggleBtn:SetPoint("TOPLEFT", categoryFrame, "TOPLEFT", 4, -6)
         categoryFrame.toggleBtn:SetBackdrop({
@@ -4666,7 +4666,7 @@ function MCL_frames:createTimelineCategoryFrame(set, relativeFrame, sectionName)
         local collapseKey = (sectionName or "Trading Post") .. ":" .. (categoryData.name or categoryName)
         local isCollapsed = MCL_SETTINGS.collapsedCategories[collapseKey] or false
 
-        local row = CreateFrame("Frame", nil, relativeFrame, "BackdropTemplate")
+        local row = CreateFrame("Frame", nil, relativeFrame)
         row:SetWidth(rowWidth)
         row:SetHeight(isCollapsed and ROW_COLLAPSED_HEIGHT or expandedHeight)
         row:SetPoint("TOPLEFT", relativeFrame, "TOPLEFT", 0, yOffset)
@@ -4683,7 +4683,7 @@ function MCL_frames:createTimelineCategoryFrame(set, relativeFrame, sectionName)
         row.isCollapsed = isCollapsed
 
         -- +/− toggle
-        row.toggleBtn = CreateFrame("Frame", nil, row, "BackdropTemplate")
+        row.toggleBtn = CreateFrame("Frame", nil, row)
         row.toggleBtn:SetSize(14, 14)
         row.toggleBtn:SetPoint("LEFT", row, "LEFT", 4, 0)
         row.toggleBtn:SetBackdrop({
@@ -4724,7 +4724,7 @@ function MCL_frames:createTimelineCategoryFrame(set, relativeFrame, sectionName)
         if totalMounts > 0 then
             local pipWidth = 60
             local pipHeight = 4
-            local pip = CreateFrame("Frame", nil, row, "BackdropTemplate")
+            local pip = CreateFrame("Frame", nil, row)
             pip:SetSize(pipWidth, pipHeight)
             pip:SetPoint("LEFT", row.inlineCount, "RIGHT", 6, 0)
             pip:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8"})

@@ -1,3 +1,15 @@
+-- MoP compat: C_ChatInfo doesn't exist, these are globals
+if not C_ChatInfo then
+    C_ChatInfo = {
+        RegisterAddonMessagePrefix = function(prefix)
+            return RegisterAddonMessagePrefix(prefix)
+        end,
+        SendAddonMessage = function(prefix, msg, channel, target)
+            return SendAddonMessage(prefix, msg, channel, target)
+        end,
+    }
+end
+
 -- * ------------------------------------------------------
 -- * MCL Compare
 -- * Request another MCL user's full collection and overlay
@@ -237,7 +249,7 @@ end
 
 --- Apply MCL header-bar pattern to a frame region
 local function CreateHeader(parent, height, text)
-    local header = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+    local header = CreateFrame("Frame", nil, parent)
     header:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, 0)
     header:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, 0)
     header:SetHeight(height)
@@ -263,7 +275,7 @@ end
 
 --- Create an MCL-style close button
 local function CreateCloseButton(parent, onClick)
-    local btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
+    local btn = CreateFrame("Button", nil, parent)
     btn:SetSize(22, 18)
     btn:SetPoint("RIGHT", parent, "RIGHT", -6, 0)
     btn:SetBackdrop(S.backdropInset)
@@ -291,7 +303,7 @@ end
 
 --- Create an MCL-style action button
 local function CreateActionButton(parent, width, text, onClick)
-    local btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
+    local btn = CreateFrame("Button", nil, parent)
     btn:SetSize(width, 26)
     btn:SetBackdrop(S.backdropInset)
     btn:SetBackdropColor(unpack(S.btnBg))
@@ -323,7 +335,7 @@ end
 local function CreateConsentFrame()
     if Compare.consentFrame then return Compare.consentFrame end
 
-    local f = CreateFrame("Frame", "MCLCompareConsentFrame", UIParent, "BackdropTemplate")
+    local f = CreateFrame("Frame", "MCLCompareConsentFrame", UIParent)
     f:SetSize(300, 150)
     f:SetPoint("TOP", UIParent, "TOP", 0, -120)
     f:SetFrameStrata("DIALOG")
@@ -484,7 +496,7 @@ local function CreatePickerFrame()
     if Compare.pickerFrame then return Compare.pickerFrame end
 
     -- Main frame
-    local f = CreateFrame("Frame", "MCLComparePickerFrame", UIParent, "BackdropTemplate")
+    local f = CreateFrame("Frame", "MCLComparePickerFrame", UIParent)
     f:SetSize(PICKER_W, PICKER_H)
     f:SetPoint("CENTER", UIParent, "CENTER", 0, 80)
     f:SetFrameStrata("DIALOG")
@@ -651,7 +663,7 @@ local function PopulatePlayerRows(users)
 
     local yOff = 0
     for i, fullName in ipairs(users) do
-        local row = CreateFrame("Button", nil, f.scrollChild, "BackdropTemplate")
+        local row = CreateFrame("Button", nil, f.scrollChild)
         row:SetSize(PICKER_W - 40, ROW_H)
         row:SetPoint("TOPLEFT", f.scrollChild, "TOPLEFT", 0, -yOff)
         row:SetBackdrop(S.backdrop)
@@ -692,7 +704,7 @@ local function PopulatePlayerRows(users)
             end
         end
 
-        local iconBg = CreateFrame("Frame", nil, row, "BackdropTemplate")
+        local iconBg = CreateFrame("Frame", nil, row)
         iconBg:SetSize(28, 28)
         iconBg:SetPoint("LEFT", row, "LEFT", 4, 0)
         iconBg:SetBackdrop(S.backdrop)
@@ -1078,7 +1090,7 @@ function Compare:ShowBanner()
     if not MCLcore.MCL_MF then return end
 
     if not Compare.bannerFrame then
-        local banner = CreateFrame("Frame", nil, MCLcore.MCL_MF, "BackdropTemplate")
+        local banner = CreateFrame("Frame", nil, MCLcore.MCL_MF)
         banner:SetHeight(28)
         banner:SetPoint("TOPLEFT", MCLcore.MCL_MF, "TOPLEFT", 0, -30) -- below main header
         banner:SetPoint("TOPRIGHT", MCLcore.MCL_MF, "TOPRIGHT", 0, -30)
@@ -1099,7 +1111,7 @@ function Compare:ShowBanner()
         banner.text:SetPoint("CENTER", banner, "CENTER", 0, 0)
 
         -- MCL-style close button
-        local closeBtn = CreateFrame("Button", nil, banner, "BackdropTemplate")
+        local closeBtn = CreateFrame("Button", nil, banner)
         closeBtn:SetSize(22, 18)
         closeBtn:SetPoint("RIGHT", banner, "RIGHT", -6, 0)
         closeBtn:SetBackdrop(S.backdropInset)

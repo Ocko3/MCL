@@ -138,7 +138,7 @@ local toastFrame
 local function EnsureToastFrame()
     if toastFrame then return toastFrame end
 
-    toastFrame = CreateFrame("Frame", "MCLToastFrame", UIParent, "BackdropTemplate")
+    toastFrame = CreateFrame("Frame", "MCLToastFrame", UIParent)
     toastFrame:SetSize(TOAST_WIDTH, TOAST_HEIGHT)
     toastFrame:SetFrameStrata("DIALOG")
     toastFrame:SetFrameLevel(500)
@@ -169,7 +169,7 @@ local function EnsureToastFrame()
     toastFrame.glow:SetColorTexture(0.2, 0.6, 0.9, 0.15)
 
     -- Header stripe
-    toastFrame.header = CreateFrame("Frame", nil, toastFrame, "BackdropTemplate")
+    toastFrame.header = CreateFrame("Frame", nil, toastFrame)
     toastFrame.header:SetPoint("TOPLEFT", 1, -1)
     toastFrame.header:SetPoint("TOPRIGHT", -1, -1)
     toastFrame.header:SetHeight(22)
@@ -202,7 +202,7 @@ local function EnsureToastFrame()
     toastFrame.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
     -- Icon border
-    toastFrame.iconBorder = CreateFrame("Frame", nil, toastFrame, "BackdropTemplate")
+    toastFrame.iconBorder = CreateFrame("Frame", nil, toastFrame)
     toastFrame.iconBorder:SetPoint("TOPLEFT", toastFrame.icon, "TOPLEFT", -1, 1)
     toastFrame.iconBorder:SetPoint("BOTTOMRIGHT", toastFrame.icon, "BOTTOMRIGHT", 1, -1)
     toastFrame.iconBorder:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
@@ -606,7 +606,7 @@ local lastAlertedMapID     -- avoid re-firing while staying in the same zone
 local function EnsureZoneToastFrame()
     if zoneToastFrame then return zoneToastFrame end
 
-    local f = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
+    local f = CreateFrame("Frame", nil, UIParent)
     f:SetSize(ZONE_TOAST_WIDTH, 60)
     f:SetFrameStrata("DIALOG")
     f:SetFrameLevel(450)
@@ -629,7 +629,7 @@ local function EnsureZoneToastFrame()
     f:SetBackdropBorderColor(0.2, 0.6, 0.9, 0.8)
 
     -- Header stripe
-    f.header = CreateFrame("Frame", nil, f, "BackdropTemplate")
+    f.header = CreateFrame("Frame", nil, f)
     f.header:SetPoint("TOPLEFT", 1, -1)
     f.header:SetPoint("TOPRIGHT", -1, -1)
     f.header:SetHeight(20)

@@ -291,7 +291,7 @@ local function GetPanelFrame()
     local anchor = WorldMapFrame.ScrollContainer or WorldMapFrame
 
     -- ── Tab button (toggle / drag handle / flyout cycle) ────
-    tabButton = CreateFrame("Button", "MCL_GuideTab", WorldMapFrame, "BackdropTemplate")
+    tabButton = CreateFrame("Button", "MCL_GuideTab", WorldMapFrame)
     tabButton:SetSize(TAB_SIZE, TAB_SIZE)
     tabButton:SetFrameStrata("HIGH")
     tabButton:SetFrameLevel((WorldMapFrame:GetFrameLevel() or 5) + 20)
@@ -368,7 +368,7 @@ local function GetPanelFrame()
     tabButton:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
     -- ── Map Icons toggle button ─────────────────────────────
-    pinToggleButton = CreateFrame("Button", nil, WorldMapFrame, "BackdropTemplate")
+    pinToggleButton = CreateFrame("Button", nil, WorldMapFrame)
     pinToggleButton:SetSize(TAB_SIZE, TAB_SIZE)
     pinToggleButton:SetFrameStrata("HIGH")
     pinToggleButton:SetFrameLevel((WorldMapFrame:GetFrameLevel() or 5) + 20)
@@ -444,7 +444,9 @@ function Panel:ShowIconTooltip(btn)
         GameTooltip:SetItemByID(data.itemId)
         usedBlizzard = true
     elseif data.spellId then
-        GameTooltip:SetMountBySpellID(data.spellId)
+        if result.spellID then
+            GameTooltip:SetSpellByID(result.spellID)
+        end
         usedBlizzard = true
     end
 

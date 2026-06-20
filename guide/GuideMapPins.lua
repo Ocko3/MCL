@@ -240,7 +240,7 @@ local function CleanNoteText(text)
     text = text:gsub("%{%{m:%d+,([^}]+)%}%}", "%1")
     -- {{item:id}} → [ItemName] or [Item id]
     text = text:gsub("%{%{item:(%d+)%}%}", function(id)
-        local itemName = C_Item.GetItemInfo(tonumber(id))
+        local itemName = GetItemInfo(tonumber(id))
         if itemName then return "[" .. itemName .. "]" end
         return "[Item " .. id .. "]"
     end)
@@ -264,7 +264,7 @@ end
 local function GetMiniCard()
     if miniCardFrame then return miniCardFrame end
 
-    local f = CreateFrame("Frame", "MCL_MiniMountCard", UIParent, "BackdropTemplate")
+    local f = CreateFrame("Frame", "MCL_MiniMountCard", UIParent)
     f:SetFrameStrata("TOOLTIP")
     f:SetFrameLevel(9000)
     f:SetClampedToScreen(true)
@@ -477,7 +477,7 @@ local function PopulateMiniCard(card, data)
 
     -- Item name
     if data.itemId then
-        local itemName, itemLink = C_Item.GetItemInfo(data.itemId)
+        local itemName, itemLink = GetItemInfo(data.itemId)
         if itemName then
             li, y = AddInfoRow(card, li, y, L["Item"], itemLink or itemName, COLOR_LABEL, COLOR_ITEM)
         end

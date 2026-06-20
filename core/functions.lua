@@ -184,7 +184,7 @@ function MCL_functions:ShowEditBox(text)
 end
 function KethoEditBox_Show(text)
     if not KethoEditBox then
-        local f = CreateFrame("Frame", "KethoEditBox", UIParent, "BackdropTemplate")
+        local f = CreateFrame("Frame", "KethoEditBox", UIParent)
         f:SetPoint("CENTER")
         f:SetSize(500, 50)
         f:SetFrameStrata("DIALOG")
@@ -316,7 +316,7 @@ function MCL_functions:initSections()
     if not MCLcore.overview or not MCLcore.overview:IsObjectType("Frame") then
         -- Use dynamic width from the actual main frame instead of a hardcoded value
         local curWidth = MCLcore.Frames:GetCurrentFrameDimensions()
-        MCLcore.overview = CreateFrame("Frame", nil, MCL_mainFrame.ScrollChild, "BackdropTemplate")
+        MCLcore.overview = CreateFrame("Frame", nil, MCL_mainFrame.ScrollChild)
         MCLcore.overview:SetSize(curWidth - 40, 550)  -- Symmetric padding within scroll viewport
         MCLcore.overview:SetPoint("TOPLEFT", MCL_mainFrame.ScrollChild, "TOPLEFT", 10, 0)  -- Consistent with other content frames
         MCLcore.overview:SetBackdropColor(0, 0, 0, 0)
@@ -405,7 +405,10 @@ function MCL_functions:SetMouseClickFunctionality(frame, mountID, mountName, ite
     frame:SetScript("OnMouseDown", function(self, button)
         if IsControlKeyDown() then
             if button == 'LeftButton' then
-                DressUpMount(mountID)
+                if DressUpMount then
+                    DressUpMount(mountID)
+                -- else: silently skip, mount dressing room not available in MoP
+                end
             elseif button == 'RightButton' then
                 -- Allow pinning of both collected and uncollected mounts
                 -- Initialize MCL_PINNED if it doesn't exist
@@ -566,7 +569,7 @@ function MCL_functions:SetMouseClickFunctionality(frame, mountID, mountName, ite
                 if itemLink and ChatEdit_GetActiveWindow() then
                     ChatEdit_InsertLink(itemLink)
                 elseif spellID then
-                    local spellLink = C_Spell.GetSpellLink(spellID)
+                    local spellLink = GetSpellLink(spellID)
                     if spellLink and ChatEdit_GetActiveWindow() then
                         ChatEdit_InsertLink(spellLink)
                     end
@@ -1126,7 +1129,7 @@ function MCL_functions:CreateMountsForCategory(set, relativeFrame, frame_size, t
                 if count == mountsPerRow then
                     overflow = overflow + frame_size + 10
                 end            
-                local frame = CreateFrame("Button", nil, relativeFrame, "BackdropTemplate");
+                local frame = CreateFrame("Button", nil, relativeFrame);
                 frame:SetWidth(frame_size);
                 frame:SetHeight(frame_size);
 
@@ -1347,7 +1350,7 @@ function MCL_functions:CreatePinnedMount(mount_Id, category, section)
         sourceText = sourceText or L["Unknown"]
 
         -- Create frame parented to the Pinned section, not to the previous frame
-        local frame = CreateFrame("Button", nil, MCLcore.pinnedFrame, "BackdropTemplate");
+        local frame = CreateFrame("Button", nil, MCLcore.pinnedFrame);
         frame:SetWidth(frame_size);
         frame:SetHeight(frame_size);
         frame:SetBackdrop({
@@ -1523,7 +1526,9 @@ function MCL_functions:ForceLoadMountData(itemId)
     
     if not mountName then
         -- Try to force refresh the mount journal
-        C_MountJournal.ClearSearchFilters()
+        if C_MountJournal.ClearSearchFilters then
+            C_MountJournal.ClearSearchFilters()
+        end
         C_Timer.After(0.1, function()
             local retryMountName = C_MountJournal.GetMountInfoByID(mountId)
         end)

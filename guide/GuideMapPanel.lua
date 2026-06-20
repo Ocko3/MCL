@@ -119,7 +119,7 @@ local function EnsurePanel(parent)
     if panel and panel:GetParent() ~= targetParent then panel:SetParent(targetParent) end
     if panel then return panel end
 
-    panel = CreateFrame("Frame", "MCL_MapPanel", targetParent, "BackdropTemplate")
+    panel = CreateFrame("Frame", "MCL_MapPanel", targetParent)
     if not InCombatLockdown() then panel:Hide() end
 
     local function anchorPanel()
@@ -176,7 +176,7 @@ local function EnsurePanel(parent)
     panel.Scroll  = s
 
     -- Combat click blocker
-    local blocker = CreateFrame("Frame", nil, panel, "BackdropTemplate")
+    local blocker = CreateFrame("Frame", nil, panel)
     blocker:SetAllPoints(s)
     blocker:EnableMouse(false)
     blocker:EnableMouseWheel(false)
@@ -705,7 +705,7 @@ end
 
 -- Reusable waypoint button for the card view
 local function MakeWaypointBtn(parent, mapId, wx, wy, label, xPos, yPos)
-    local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
+    local b = CreateFrame("Button", nil, parent)
     b:SetHeight(18)
     b:SetPoint("TOPLEFT", parent, "TOPLEFT", xPos, yPos)
     b:SetBackdrop({
@@ -829,7 +829,7 @@ local function PopulateCard(data)
 
     -- ── 3D Model Preview ──
     local mH = 160
-    local mf = CreateFrame("Frame", nil, P, "BackdropTemplate")
+    local mf = CreateFrame("Frame", nil, P)
     mf:SetSize(cw, mH)
     mf:SetPoint("TOPLEFT", P, "TOPLEFT", 8, y)
     mf:SetBackdrop({
@@ -888,7 +888,7 @@ local function PopulateCard(data)
     aRow:SetPoint("TOPLEFT", P, "TOPLEFT", 8, y)
 
     -- Preview button
-    local prevBtn = CreateFrame("Button", nil, aRow, "BackdropTemplate")
+    local prevBtn = CreateFrame("Button", nil, aRow)
     prevBtn:SetSize(70, 18)
     prevBtn:SetPoint("LEFT", aRow, "LEFT", 0, 0)
     prevBtn:SetBackdrop({
@@ -902,12 +902,17 @@ local function PopulateCard(data)
     prevTxt:SetAllPoints()
     prevTxt:SetText(L["Preview"])
     prevTxt:SetTextColor(0.4, 0.78, 0.95, 1)
-    prevBtn:SetScript("OnClick", function() DressUpMount(mountID) end)
+    
+    if DressUpMount then
+        prevBtn:SetScript("OnClick", function() DressUpMount(mountID) end)
+    -- else: silently skip, mount dressing room not available in MoP
+    end
+    
     prevBtn:SetScript("OnEnter", function(s) s:SetBackdropBorderColor(0.35, 0.55, 0.8, 0.9); prevTxt:SetTextColor(1, 1, 1, 1) end)
     prevBtn:SetScript("OnLeave", function(s) s:SetBackdropBorderColor(0.25, 0.4, 0.6, 0.6); prevTxt:SetTextColor(0.4, 0.78, 0.95, 1) end)
 
     -- Wowhead button
-    local whBtn = CreateFrame("Button", nil, aRow, "BackdropTemplate")
+    local whBtn = CreateFrame("Button", nil, aRow)
     whBtn:SetSize(70, 18)
     whBtn:SetPoint("LEFT", prevBtn, "RIGHT", 6, 0)
     whBtn:SetBackdrop({
@@ -924,7 +929,7 @@ local function PopulateCard(data)
     whBtn:SetScript("OnClick", function()
         -- Lazy-create copy popup
         if not cardView._copyPopup then
-            local cp = CreateFrame("Frame", nil, cardView, "BackdropTemplate")
+            local cp = CreateFrame("Frame", nil, cardView)
             cp:SetSize(pw - 20, 28)
             cp:SetPoint("TOP", cardView, "TOP", 0, -48)
             cp:SetFrameStrata("DIALOG")
@@ -1070,8 +1075,8 @@ local function PopulateCard(data)
                     local inf = C_CurrencyInfo and C_CurrencyInfo.GetCurrencyInfo(cost.id)
                     if inf then cn = inf.name or cn; ci = inf.iconFileID; ph = inf.quantity or 0 end
                 elseif cost.type == "item" and cost.id > 0 then
-                    local n, _, _, _, _, _, _, _, _, t = C_Item.GetItemInfo(cost.id)
-                    cn = n or (string.format(L["Item %d"], cost.id)); ci = t; ph = C_Item.GetItemCount(cost.id, true) or 0
+                    local n, _, _, _, _, _, _, _, _, t = GetItemInfo(cost.id)
+                    cn = n or (string.format(L["Item %d"], cost.id)); ci = t; ph = GetItemCount(cost.id, true) or 0
                 elseif cost.type == "gold" then
                     cn = L["Gold"]; ci = "Interface\\MoneyFrame\\UI-GoldIcon"; ph = GetMoney() or 0
                 end
@@ -1243,7 +1248,7 @@ local function PopulateCard(data)
 
         if not cardNotesExpanded then
             -- Collapsed bar
-            local ib = CreateFrame("Button", nil, P, "BackdropTemplate")
+            local ib = CreateFrame("Button", nil, P)
             ib:SetSize(cw, 22)
             ib:SetPoint("TOPLEFT", P, "TOPLEFT", 10, y)
             ib:SetBackdrop({
@@ -1331,7 +1336,7 @@ local function PopulateCard(data)
                 elseif t:find("%{%{item:%d") then
                     -- Line with item template(s) — resolve names
                     local display = t:gsub("%{%{item:(%d+)%}%}", function(id)
-                        local iName = C_Item.GetItemInfo(tonumber(id))
+                        local iName = GetItemInfo(tonumber(id))
                         return iName and ("[" .. iName .. "]") or ("[Item " .. id .. "]")
                     end)
                     local fs = P:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -1356,7 +1361,7 @@ local function PopulateCard(data)
             end
 
             -- Collapse button
-            local cb = CreateFrame("Button", nil, P, "BackdropTemplate")
+            local cb = CreateFrame("Button", nil, P)
             cb:SetSize(cw, 22)
             cb:SetPoint("TOPLEFT", P, "TOPLEFT", 10, y)
             cb:SetBackdrop({

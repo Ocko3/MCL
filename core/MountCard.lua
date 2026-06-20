@@ -370,7 +370,7 @@ local function CreateSectionHeader(parent, text, yOffset, currentOpacity, parent
     -- Use provided width or fallback to fixed mount card width
     local headerWidth = parentWidth and (parentWidth - 40) or (400 - 40)  -- Fixed width instead of dynamic
     
-    local header = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+    local header = CreateFrame("Frame", nil, parent)
     header:SetSize(headerWidth, 25)
     header:SetPoint("TOP", parent, "TOP", 0, yOffset)
     
@@ -407,7 +407,7 @@ function MountCard:CreateMountCard()
     local cardWidth, cardHeight = GetMountCardDimensions()
     
     -- Create main frame with MCL styling (matching PetCard)
-    local f = CreateFrame("Frame", "MCL_MountCard", UIParent, "BackdropTemplate")
+    local f = CreateFrame("Frame", "MCL_MountCard", UIParent)
     f:SetSize(cardWidth, cardHeight)  -- Use dynamic dimensions
     f:SetFrameStrata("HIGH")
     f:SetFrameLevel(100)
@@ -427,7 +427,7 @@ function MountCard:CreateMountCard()
     f:SetBackdropBorderColor(0.2, 0.2, 0.25, 0.8)
     
     -- Header bar at top of mount card (matching main frame header)
-    f.headerBar = CreateFrame("Frame", nil, f, "BackdropTemplate")
+    f.headerBar = CreateFrame("Frame", nil, f)
     f.headerBar:SetPoint("TOPLEFT", f, "TOPLEFT", 0, 0)
     f.headerBar:SetPoint("TOPRIGHT", f, "TOPRIGHT", 0, 0)
     f.headerBar:SetHeight(32)
@@ -553,7 +553,7 @@ function MountCard:CreateMountCard()
     f.copyHint:SetTextColor(0.5, 0.5, 0.5, 0)
 
     -- Inline copy popup anchored to the title bar
-    f.copyPopup = CreateFrame("Frame", nil, f, "BackdropTemplate")
+    f.copyPopup = CreateFrame("Frame", nil, f)
     f.copyPopup:SetSize(cardWidth - 20, 36)
     f.copyPopup:SetPoint("TOP", f.titleFrame, "BOTTOM", 0, -2)
     f.copyPopup:SetFrameStrata("DIALOG")
@@ -905,7 +905,7 @@ function MountCard:CreateMountCardContent(parentFrame, mountData)
             local zoneInfo = C_Map.GetMapInfo(wpMapId)
             local zoneName = zoneInfo and zoneInfo.name or ("Map " .. wpMapId)
 
-            local wpBtn = CreateFrame("Button", nil, parent, "BackdropTemplate")
+            local wpBtn = CreateFrame("Button", nil, parent)
             wpBtn:SetSize(160, 18)
             wpBtn:SetPoint("TOPLEFT", parent, "TOPLEFT", xPos, yPos)
             wpBtn:SetBackdrop({
@@ -957,7 +957,7 @@ function MountCard:CreateMountCardContent(parentFrame, mountData)
 
         -- Helper: resolve an item link from itemId (uses GetItemInfo cache)
         local function GetItemLink(itemId)
-            local itemName, itemLink = C_Item.GetItemInfo(itemId)
+            local itemName, itemLink = GetItemInfo(itemId)
             if itemLink then
                 return itemLink
             end
@@ -967,11 +967,11 @@ function MountCard:CreateMountCardContent(parentFrame, mountData)
 
         -- Helper: estimate item link width using cached name or a conservative default
         local function EstimateItemWidth(itemId)
-            local itemName = C_Item.GetItemInfo(itemId)
+            local itemName = GetItemInfo(itemId)
             if itemName then
                 -- Use a hidden FontString to measure the actual link width
                 local measureFs = parentFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-                local link = select(2, C_Item.GetItemInfo(itemId)) or ("[" .. itemName .. "]")
+                local link = select(2, GetItemInfo(itemId)) or ("[" .. itemName .. "]")
                 measureFs:SetText(link)
                 local w = measureFs:GetStringWidth()
                 measureFs:Hide()
@@ -1003,7 +1003,7 @@ function MountCard:CreateMountCardContent(parentFrame, mountData)
             UpdateLink()
 
             -- If item wasn't cached, request it and re-render the card once loaded
-            local itemName = C_Item.GetItemInfo(itemId)
+            local itemName = GetItemInfo(itemId)
             if not itemName then
                 pendingItemLoads = pendingItemLoads + 1
                 local item = Item:CreateFromItemID(itemId)
@@ -1052,7 +1052,7 @@ function MountCard:CreateMountCardContent(parentFrame, mountData)
 
         if not notesExpanded then
             -- COLLAPSED: show compact "Instructions" bar
-            local instrBtn = CreateFrame("Button", nil, parentFrame, "BackdropTemplate")
+            local instrBtn = CreateFrame("Button", nil, parentFrame)
             instrBtn:SetSize(contentWidth, 24)
             instrBtn:SetPoint("TOPLEFT", parentFrame, "TOPLEFT", 10, yOffset)
             instrBtn:SetBackdrop({
@@ -1280,7 +1280,7 @@ function MountCard:CreateMountCardContent(parentFrame, mountData)
         end
         -- Collapse button at the end of expanded notes
         yOffset = yOffset - 4
-        local collapseBtn = CreateFrame("Button", nil, parentFrame, "BackdropTemplate")
+        local collapseBtn = CreateFrame("Button", nil, parentFrame)
         collapseBtn:SetSize(contentWidth, 24)
         collapseBtn:SetPoint("TOPLEFT", parentFrame, "TOPLEFT", 10, yOffset)
         collapseBtn:SetBackdrop({
@@ -1844,10 +1844,10 @@ function MountCard:CreateMountCardContent(parentFrame, mountData)
                         end
                     elseif cost.type == "item" and cost.id > 0 then
                         -- Query item info
-                        local itemName, _, _, _, _, _, _, _, _, itemTexture = C_Item.GetItemInfo(cost.id)
+                        local itemName, _, _, _, _, _, _, _, _, itemTexture = GetItemInfo(cost.id)
                         costName = itemName or (string.format(L["Item %d"], cost.id))
                         costIcon = itemTexture
-                        playerHas = C_Item.GetItemCount(cost.id, true) or 0
+                        playerHas = GetItemCount(cost.id, true) or 0
                     elseif cost.type == "gold" then
                         costName = L["Gold"]
                         costIcon = "Interface\\MoneyFrame\\UI-GoldIcon"
@@ -2066,7 +2066,7 @@ function MountCard:CreateMountCardContent(parentFrame, mountData)
     -- Use fixed height for model frame
     local modelHeight = 450 -- Fixed height instead of dynamic calculation
     
-    local modelFrame = CreateFrame("Frame", nil, parentFrame, "BackdropTemplate")
+    local modelFrame = CreateFrame("Frame", nil, parentFrame)
     modelFrame:SetSize(parentFrame:GetWidth() - 20, modelHeight) -- Use full width minus small padding
     modelFrame:SetPoint("TOPLEFT", parentFrame, "TOPLEFT", 10, yOffset)  -- Aligned with description
     modelFrame:SetBackdrop({
