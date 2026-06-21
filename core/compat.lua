@@ -1,34 +1,58 @@
--- MoP compat: C_Item namespace shim
-if not C_Item then
-    C_Item = {
-        GetItemInfo = function(id) return GetItemInfo(id) end,
-        GetItemCount = function(id, bank) return GetItemCount(id, bank) end,
-        GetItemNameByID = function(id) return (GetItemInfo(id)) end,
-        -- RequestLoadItemDataByID doesn't exist in MoP; items load automatically
-        RequestLoadItemDataByID = function(id) end,  -- no-op
-    }
-end
-
 -- * ------------------------------------------------------
 -- * core/compat.lua
 -- * MoP Classic (5.4.x) API compatibility shims.
--- * Must be the FIRST MCL file loaded after libs (add it
--- * to MCL.toc right after libs\load_libs.xml).
+-- * Loaded FIRST after libs (see MCL.toc).
 -- * ------------------------------------------------------
 local _, MCLcore = ...
 
 -- =========================================================
 -- Version detection
+-- MoP Classic runs on the modern WoW client engine, so we
+-- detect by the absence of the BfA+ map API (UiMapPoint).
 -- =========================================================
--- MoP Classic lacks UiMapPoint (BfA+ map system) and has
--- a different C_CurrencyInfo surface. Use both as signals.
-MCLcore.IsMoPClassic = (not UiMapPoint) or (not C_CurrencyInfo)
+MCLcore.IsMoPClassic = (not UiMapPoint)
+
+-- =========================================================
+-- SetBackdrop / BackdropTemplate shim
+--
+-- MoP Classic uses the modern WoW client engine (post-9.0).
+-- On this engine, Frame objects do NOT have SetBackdrop,
+-- SetBackdropColor, or SetBackdropBorderColor unless they
+-- inherit "BackdropTemplate" in XML or Lua.
+--
+-- Rather than adding BackdropTemplate to every CreateFrame
+-- call, we inject the mixin onto the Frame metatable so
+-- ALL frames get these methods automatically.
+-- =========================================================
+if BackdropTemplateMixin then
+    -- Modern engine approach: mixin exists, apply to Frame metatable
+    local frameMeta = getmetatable(CreateFrame("Frame")).__index
+    if frameMeta and not frameMeta.SetBackdrop then
+        for k, v in pairs(BackdropTemplateMixin) do
+            frameMeta[k] = v
+        end
+    end
+else
+    -- Fallback: implement minimal SetBackdrop ourselves
+    -- (shouldn't be needed on MoP Classic modern engine, but just in case)
+    local frameMeta = getmetatable(CreateFrame("Frame"))
+    if frameMeta then
+        local index = frameMeta.__index
+        if type(index) == "table" and not index.SetBackdrop then
+            index.SetBackdrop = function(self, backdropInfo)
+                -- No-op fallback — backdrop not supported
+            end
+            index.SetBackdropColor = function(self, r, g, b, a) end
+            index.SetBackdropBorderColor = function(self, r, g, b, a) end
+            index.GetBackdrop = function(self) return nil end
+        end
+    end
+end
 
 -- =========================================================
 -- C_ChatInfo shim
 -- BfA (8.0) moved RegisterAddonMessagePrefix and
--- SendAddonMessage into the C_ChatInfo namespace.
--- In MoP they are plain globals.
+-- SendAddonMessage into C_ChatInfo. MoP has globals.
 -- =========================================================
 if not C_ChatInfo then
     C_ChatInfo = {
@@ -53,16 +77,15 @@ if not C_Item then
                               return GetItemCount(id, includeBank)
                           end,
         GetItemNameByID = function(id) return (GetItemInfo(id)) end,
-        -- No equivalent in MoP; items are cached automatically
-        -- when GetItemInfo is called. This is a safe no-op.
+        -- No equivalent in MoP; items are cached automatically.
         RequestLoadItemDataByID = function(id) end,
     }
 end
 
 -- =========================================================
 -- C_Spell shim
--- C_Spell namespace is Retail only. MoP has global
--- GetSpellLink(spellID).
+-- C_Spell namespace is Retail/modern only.
+-- MoP has global GetSpellLink(spellID).
 -- =========================================================
 if not C_Spell then
     C_Spell = {
@@ -73,8 +96,6 @@ end
 -- =========================================================
 -- DressUpMount shim
 -- Mount dressing room doesn't exist in MoP Classic.
--- Ctrl+Click on a mount will silently do nothing instead
--- of erroring. Replace with summon logic if desired.
 -- =========================================================
 if not DressUpMount then
     DressUpMount = function(mountID) end  -- no-op
@@ -82,9 +103,8 @@ end
 
 -- =========================================================
 -- GameTooltip:SetMountBySpellID shim
--- Added in a later Retail patch. In MoP we fall back to
--- SetSpellByID which shows the mount spell tooltip — not
--- as rich, but doesn't error.
+-- Fall back to SetSpellByID which shows the mount spell
+-- tooltip in MoP — not as rich, but works without errors.
 -- =========================================================
 if GameTooltip and not GameTooltip.SetMountBySpellID then
     GameTooltip.SetMountBySpellID = function(self, spellID)
@@ -96,31 +116,28 @@ end
 
 -- =========================================================
 -- C_MountJournal safety patches
--- Some methods don't exist in MoP 5.4.8.
+-- Some methods were added post-MoP.
 -- =========================================================
 if C_MountJournal then
-    -- GetMountFromSpell: added post-MoP
     if not C_MountJournal.GetMountFromSpell then
         C_MountJournal.GetMountFromSpell = function(spellID) return nil end
     end
-
-    -- ClearSearchFilters: added post-MoP
     if not C_MountJournal.ClearSearchFilters then
         C_MountJournal.ClearSearchFilters = function() end
     end
 end
 
 -- =========================================================
--- IsMountCollected global
--- In MoP there's no Blizzard global IsMountCollected().
--- MCL defines its own in functions.lua, but compat.lua
--- loads first, so we put a safe stub here that will be
--- overridden once functions.lua loads.
+-- IsMountCollected stub
+-- Overridden by functions.lua once it loads. This stub
+-- exists so any code that somehow runs before functions.lua
+-- doesn't error.
 -- =========================================================
 if not IsMountCollected then
     IsMountCollected = function(mountID)
         if not mountID or not C_MountJournal then return false end
-        local _, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountID)
+        local _, _, _, _, _, _, _, _, _, _, isCollected =
+            C_MountJournal.GetMountInfoByID(mountID)
         return isCollected or false
     end
 end

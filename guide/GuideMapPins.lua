@@ -44,10 +44,20 @@ function Pins:PinMount(mountData)
         return
     end
 
-    -- Use the WoW native waypoint system (C_Map.SetUserWaypoint)
-    local mapPoint = UiMapPoint.CreateFromCoordinates(best.m, best.x / 100, best.y / 100)
-    C_Map.SetUserWaypoint(mapPoint)
-    C_SuperTrack.SetSuperTrackedUserWaypoint(true)
+    -- MoP Classic compat: C_Map.SetUserWaypoint and UiMapPoint don't exist in MoP.
+    -- Print the coordinates to chat as a fallback so the player still gets the info.
+    if UiMapPoint and C_Map and C_Map.SetUserWaypoint then
+        local mapPoint = UiMapPoint.CreateFromCoordinates(best.m, best.x / 100, best.y / 100)
+        C_Map.SetUserWaypoint(mapPoint)
+        if C_SuperTrack and C_SuperTrack.SetSuperTrackedUserWaypoint then
+            C_SuperTrack.SetSuperTrackedUserWaypoint(true)
+        end
+    else
+        -- MoP fallback: just print the coordinates
+        local npcInfo = best.n and (" — " .. best.n) or ""
+        print("|cFF1FB7EBMCL|r Coordinates for " .. (mountData.mountName or mountData.name or "?") .. npcInfo .. ": " .. string.format("%.1f, %.1f", best.x, best.y) .. " (map " .. tostring(best.m) .. ")")
+        return
+    end
 
     self.activeWaypoint = {
         mapID   = best.m,
@@ -65,7 +75,9 @@ end
 -- ─── Clear the active waypoint ──────────────────────────────
 function Pins:ClearWaypoint()
     if self.activeWaypoint then
-        C_Map.ClearUserWaypoint()
+        if C_Map and C_Map.ClearUserWaypoint then
+            C_Map.ClearUserWaypoint()
+        end
         self.activeWaypoint = nil
     end
 end

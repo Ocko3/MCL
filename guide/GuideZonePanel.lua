@@ -615,21 +615,24 @@ function Panel:OnMapHide()
     ReleaseAllIcons()
 end
 
-local hookFrame = CreateFrame("Frame")
-hookFrame:RegisterEvent("PLAYER_LOGIN")
-hookFrame:SetScript("OnEvent", function()
-    if not WorldMapFrame then return end
+-- MoP Classic compat: only hook WorldMapFrame events if guide system is available
+if MCLcore.GuideSystemAvailable then
+    local hookFrame = CreateFrame("Frame")
+    hookFrame:RegisterEvent("PLAYER_LOGIN")
+    hookFrame:SetScript("OnEvent", function()
+        if not WorldMapFrame then return end
 
-    hooksecurefunc(WorldMapFrame, "OnMapChanged", function()
-        C_Timer.After(0.1, function() Panel:Refresh() end)
+        hooksecurefunc(WorldMapFrame, "OnMapChanged", function()
+            C_Timer.After(0.1, function() Panel:Refresh() end)
+        end)
+        WorldMapFrame:HookScript("OnShow", function()
+            C_Timer.After(0.1, function() Panel:OnMapShow() end)
+        end)
+        WorldMapFrame:HookScript("OnHide", function()
+            Panel:OnMapHide()
+        end)
     end)
-    WorldMapFrame:HookScript("OnShow", function()
-        C_Timer.After(0.1, function() Panel:OnMapShow() end)
-    end)
-    WorldMapFrame:HookScript("OnHide", function()
-        Panel:OnMapHide()
-    end)
-end)
+end
 
 -- Slash
 SLASH_MCLGUIDE1 = "/mclguide"

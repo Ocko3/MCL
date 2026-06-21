@@ -189,13 +189,22 @@ local function EnsurePanel(parent)
     content:SetFrameLevel(base + 2)
 
     -- Border (same as Map Legend)
-    local bf = CreateFrame("Frame", nil, panel, "QuestLogBorderFrameTemplate")
+    -- MoP compat: QuestLogBorderFrameTemplate doesn't exist; use a manual backdrop border
+    local bf = CreateFrame("Frame", nil, panel)
     bf:ClearAllPoints()
     bf:SetPoint("TOPLEFT",     s, "TOPLEFT",     -3,  7)
     bf:SetPoint("BOTTOMRIGHT", s, "BOTTOMRIGHT",  3, -6)
     bf:SetFrameStrata(panel:GetFrameStrata())
     bf:SetFrameLevel((panel:GetFrameLevel() or 2) + 3)
     bf:EnableMouse(false)
+    if bf.SetBackdrop then
+        bf:SetBackdrop({
+            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+            edgeSize = 12,
+            insets = { left = 3, right = 3, top = 3, bottom = 3 },
+        })
+        bf:SetBackdropBorderColor(0.4, 0.4, 0.5, 0.8)
+    end
     panel.BorderFrame = bf
 
     -- Title above the border
@@ -247,48 +256,56 @@ local function EnsureTab(parent)
     if tabButton and tabButton:GetParent() ~= parent then tabButton:SetParent(parent) end
     if tabButton then return tabButton end
 
-    tabButton = CreateFrame("Button", "MCL_MapPanelTab", parent, "QuestLogTabButtonTemplate")
-    -- Position is managed by RepositionMCLTab(); set a temporary anchor
-    -- so the frame has valid geometry until the first layout pass.
+    -- MoP compat: QuestLogTabButtonTemplate doesn't exist in MoP Classic.
+    -- Build a plain Button with backdrop styling that mimics the tab visually.
+    tabButton = CreateFrame("Button", "MCL_MapPanelTab", parent)
+    tabButton:SetSize(32, 32)
     tabButton:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -6, -100)
+    if tabButton.SetBackdrop then
+        tabButton:SetBackdrop({
+            bgFile   = "Interface\\Buttons\\WHITE8x8",
+            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+            edgeSize = 10,
+            insets = { left = 2, right = 2, top = 2, bottom = 2 },
+        })
+        tabButton:SetBackdropColor(0.08, 0.08, 0.12, 0.9)
+        tabButton:SetBackdropBorderColor(0.3, 0.3, 0.4, 0.8)
+    end
+    tabButton:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight", "ADD")
 
-    -- Tab metadata used by Blizzard's tab system
+    -- Tab metadata (Blizzard tab system fields — inert in MoP, harmless to set)
     tabButton.activeAtlas   = "questlog-tab-icon-maplegend"
     tabButton.inactiveAtlas = "questlog-tab-icon-maplegend-inactive"
     tabButton.tooltipText   = "MCL Zone Mounts"
     tabButton.displayMode   = DISPLAY_MODE
 
-    -- Replace template icon with the MCL logo
-    if tabButton.Icon then tabButton.Icon:SetAlpha(0) end
+    -- MCL logo icon
     local customIcon = tabButton:CreateTexture(nil, "ARTWORK")
-    customIcon:SetPoint("CENTER", -2, 0)
+    customIcon:SetPoint("CENTER", -1, 0)
     customIcon:SetSize(20, 20)
     customIcon:SetTexture(MCL_ICON)
     customIcon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
     tabButton.CustomIcon = customIcon
 
-    -- Guard against Blizzard re-showing the template icon
-    if tabButton.Icon then
-        hooksecurefunc(tabButton.Icon, "Show",     function(icon) icon:SetAlpha(0) end)
-        hooksecurefunc(tabButton.Icon, "SetAtlas",  function(icon) icon:SetAlpha(0) end)
+    -- Checked state: flip icon brightness (SetChecked not on plain Button; add it)
+    local _checked = false
+    tabButton.SetChecked = function(self, val)
+        _checked = val
+        if self.CustomIcon then self.CustomIcon:SetDesaturated(not val) end
+        if self.SetBackdrop then
+            if val then
+                self:SetBackdropColor(0.15, 0.15, 0.25, 0.95)
+                self:SetBackdropBorderColor(0.5, 0.5, 0.7, 1.0)
+            else
+                self:SetBackdropColor(0.08, 0.08, 0.12, 0.9)
+                self:SetBackdropBorderColor(0.3, 0.3, 0.4, 0.8)
+            end
+        end
     end
-
-    -- Checked state: flip icon brightness
-    if not tabButton._mclStateHooks then
-        hooksecurefunc(tabButton, "SetChecked", function(self, checked)
-            if self.CustomIcon then self.CustomIcon:SetDesaturated(not checked) end
-        end)
-        hooksecurefunc(tabButton, "Disable", function(self)
-            if self.CustomIcon then self.CustomIcon:SetDesaturated(true) end
-        end)
-        hooksecurefunc(tabButton, "Enable", function(self)
-            if self.CustomIcon then self.CustomIcon:SetDesaturated(false) end
-        end)
-        tabButton._mclStateHooks = true
-    end
+    tabButton.GetChecked = function(self) return _checked end
 
     -- Default: not selected
-    if tabButton.SetChecked then tabButton:SetChecked(false) end
+    tabButton:SetChecked(false)
     SafeSetVisible(tabButton, true)
 
     -- Tooltip
@@ -1593,50 +1610,27 @@ end
 
 -- ================================================================
 -- Events
+-- MoP Classic compat: only register WorldMap hooks if guide system is available
 -- ================================================================
-f:RegisterEvent("ADDON_LOADED")
-f:SetScript("OnEvent", function(self, event, arg1)
-    if event == "ADDON_LOADED" and arg1 == "Blizzard_WorldMap" then
-        if WorldMapFrame and not WorldMapFrame._mclPanelHook then
-            WorldMapFrame:HookScript("OnShow", function()
-                C_Timer.After(0.1, function()
-                    if not Guide.ready then return end
-                    f:TryInit()
-                    if QuestMapFrame and QuestMapFrame.ValidateTabs then
-                        QuestMapFrame:ValidateTabs()
-                    end
+if MCLcore.GuideSystemAvailable then
+    f:RegisterEvent("ADDON_LOADED")
+    f:SetScript("OnEvent", function(self, event, arg1)
+        if event == "ADDON_LOADED" and arg1 == "Blizzard_WorldMap" then
+            if WorldMapFrame and not WorldMapFrame._mclPanelHook then
+                WorldMapFrame:HookScript("OnShow", function()
+                    C_Timer.After(0.1, function()
+                        if not Guide.ready then return end
+                        f:TryInit()
+                        if QuestMapFrame and QuestMapFrame.ValidateTabs then
+                            QuestMapFrame:ValidateTabs()
+                        end
+                    end)
                 end)
-            end)
-            WorldMapFrame._mclPanelHook = true
-        end
-    end
-
-    -- Hook map changes to refresh when user pans to a new zone
-    if WorldMapFrame and not WorldMapFrame._mclMapChangedHook then
-        hooksecurefunc(WorldMapFrame, "OnMapChanged", function()
-            if panel and panel:IsShown() then
-                MapPanel:QueueRefresh()
+                WorldMapFrame._mclPanelHook = true
             end
-        end)
-        WorldMapFrame._mclMapChangedHook = true
-    end
-end)
-
--- If WorldMapFrame already exists (Blizzard_WorldMap loaded early)
-if WorldMapFrame then
-    C_Timer.After(0, function()
-        if WorldMapFrame and not WorldMapFrame._mclPanelHook then
-            WorldMapFrame:HookScript("OnShow", function()
-                C_Timer.After(0.1, function()
-                    if not Guide.ready then return end
-                    f:TryInit()
-                    if QuestMapFrame and QuestMapFrame.ValidateTabs then
-                        QuestMapFrame:ValidateTabs()
-                    end
-                end)
-            end)
-            WorldMapFrame._mclPanelHook = true
         end
+
+        -- Hook map changes to refresh when user pans to a new zone
         if WorldMapFrame and not WorldMapFrame._mclMapChangedHook then
             hooksecurefunc(WorldMapFrame, "OnMapChanged", function()
                 if panel and panel:IsShown() then
@@ -1646,4 +1640,30 @@ if WorldMapFrame then
             WorldMapFrame._mclMapChangedHook = true
         end
     end)
-end
+
+    -- If WorldMapFrame already exists (Blizzard_WorldMap loaded early)
+    if WorldMapFrame then
+        C_Timer.After(0, function()
+            if WorldMapFrame and not WorldMapFrame._mclPanelHook then
+                WorldMapFrame:HookScript("OnShow", function()
+                    C_Timer.After(0.1, function()
+                        if not Guide.ready then return end
+                        f:TryInit()
+                        if QuestMapFrame and QuestMapFrame.ValidateTabs then
+                            QuestMapFrame:ValidateTabs()
+                        end
+                    end)
+                end)
+                WorldMapFrame._mclPanelHook = true
+            end
+            if WorldMapFrame and not WorldMapFrame._mclMapChangedHook then
+                hooksecurefunc(WorldMapFrame, "OnMapChanged", function()
+                    if panel and panel:IsShown() then
+                        MapPanel:QueueRefresh()
+                    end
+                end)
+                WorldMapFrame._mclMapChangedHook = true
+            end
+        end)
+    end
+end -- MCLcore.GuideSystemAvailable
