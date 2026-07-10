@@ -386,6 +386,8 @@ function W:CreateWaypointButton(opts)
     btn:SetScript("OnClick", function()
         local normX = wx / 100
         local normY = wy / 100
+        
+        -- Try TomTom first (most reliable for both Retail and MoP)
         if TomTom and TomTom.AddWaypoint then
             TomTom:AddWaypoint(mapID, normX, normY, {
                 title      = title,
@@ -393,12 +395,24 @@ function W:CreateWaypointButton(opts)
                 minimap    = true,
                 world      = true,
             })
+        -- Try Blizzard native waypoint (Retail only, won't work in MoP)
+        elseif C_Map and C_Map.SetUserWaypoint and UiMapPoint then
+            pcall(function()
+                local vector = CreateVector2D(normX, normY)
+                local mapPoint = UiMapPoint.CreateFromVector2D(mapID, vector)
+                C_Map.SetUserWaypoint(mapPoint)
+                if C_SuperTrack then
+                    C_SuperTrack.SetSuperTrackedUserWaypoint(true)
+                end
+            end)
         else
-            local vector = CreateVector2D(normX, normY)
-            C_Map.SetUserWaypoint(UiMapPoint.CreateFromVector2D(mapID, vector))
-            C_SuperTrack.SetSuperTrackedUserWaypoint(true)
+            -- MoP Classic fallback: just show coordinates in chat
+            print("|cFF1FB7EBMCL|r: " .. title .. " coordinates: " .. string.format("%.1f, %.1f", wx, wy))
+            return
         end
+        
         OpenWorldMap(mapID)
+        
         -- Flash confirmation
         wpText:SetTextColor(unpack(textFlash))
         wpText:SetText(GetL()["Set!"] or "Set!")
